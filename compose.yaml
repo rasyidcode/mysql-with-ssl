@@ -15,24 +15,26 @@ services:
       - --ssl=1
       - --require_secure_transport=ON
 
-#  cert-gen:
-#    build: .
-#    image: test-cert-gen
-#    volumes:
-#      - ./certs:/certs
-#    entrypoint:
-#      - /bin/sh
-#      - -c
-#      - |
-#        openssl genrsa 2048 > /certs/ca-key.pem &&
-#        openssl req -new -x509 -nodes -days 3650 -key /certs/ca-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/ca-cert.pem &&
-#        openssl req -newkey rsa:2048 -days 3650 -nodes -keyout /certs/server-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/server-req.pem &&
-#        openssl x509 -req -in /certs/server-req.pem -days 3650 -CA /certs/ca-cert.pem -CAkey /certs/ca-key.pem -set_serial 01 > /certs/server-cert.pem &&
-#        openssl rsa -in /certs/server-key.pem -out /certs/server-key.pem &&
-#        openssl req -newkey rsa:2048 -days 3650 -nodes -keyout /certs/client-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/client-req.pem &&
-#        openssl x509 -req -in /certs/client-req.pem -days 3650 -CA /certs/ca-cert.pem -CAkey /certs/ca-key.pem -set_serial 01 > /certs/client-cert.pem &&
-#        openssl rsa -in /certs/client-key.pem -out /certs/client-key.pem
-#    restart: "no"
+cert-gen:
+  build: .
+  image: test-cert-gen
+  volumes:
+    - ./certs:/certs
+  entrypoint:
+    - /bin/sh
+    - -c
+    - |        
+      rm -rf /certs/* &&
+      openssl genrsa 2048 > /certs/ca-key.pem &&
+      openssl req -new -x509 -nodes -days 3650 -key /certs/ca-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/ca-cert.pem &&
+      openssl req -newkey rsa:2048 -days 3650 -nodes -keyout /certs/server-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/server-req.pem &&
+      openssl x509 -req -in /certs/server-req.pem -days 3650 -CA /certs/ca-cert.pem -CAkey /certs/ca-key.pem -set_serial 01 > /certs/server-cert.pem &&
+      openssl rsa -in /certs/server-key.pem -out /certs/server-key.pem &&
+      openssl req -newkey rsa:2048 -days 3650 -nodes -keyout /certs/client-key.pem -subj "/CN=mysql/O=myorg/C=US" > /certs/client-req.pem &&
+      openssl x509 -req -in /certs/client-req.pem -days 3650 -CA /certs/ca-cert.pem -CAkey /certs/ca-key.pem -set_serial 01 > /certs/client-cert.pem &&
+      openssl rsa -in /certs/client-key.pem -out /certs/client-key.pem
+      chmod 644 /certs/*
+  restart: "no"
 #
 #  client:
 #    image: alpine:latest
